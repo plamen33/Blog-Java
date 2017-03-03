@@ -18,4 +18,3 @@ public class UserEditBindingModel extends UserBindingModel{
         this.roles = roles;
     }
 }
- 

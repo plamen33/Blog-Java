@@ -1,24 +1,38 @@
 package softuniBlog.entity;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "articles")
+@Table(name="articles")
 public class Article {
+
     private Integer id;
-
     private String title;
-
     private String content;
-
     private User author;
+    private Category category;
+    private Set<Tag> tags;
 
-    public Article() {    }
+    @ManyToMany()
+    @JoinColumn(table = "articles_tags")
+    public Set<Tag> getTags() {
+        return tags;
+    }
 
-    public Article(String title, String content, User author) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    @ManyToOne()
+    @JoinColumn(nullable = false, name = "categoryId")
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     @Id
@@ -31,7 +45,7 @@ public class Article {
         this.id = id;
     }
 
-    @Column(nullable = false)
+    @Column (nullable = false)
     public String getTitle() {
         return title;
     }
@@ -59,8 +73,20 @@ public class Article {
         this.author = author;
     }
 
+    public Article(String title, String content, User author, Category category, HashSet<Tag> tags){
+
+        this.title=title;
+        this.content=content;
+        this.author=author;
+        this.category=category;
+        this.tags = tags;
+    }
+    public Article(){   }
+    public Article(String title, String content, org.springframework.security.core.userdetails.User userEntity){   }
+
     @Transient
     public String getSummary(){
         return this.getContent().substring(0, this.getContent().length() / 2) + "...";
     }
+
 }
