@@ -3,9 +3,16 @@
         <div class="row">
             <div id="main" class="col-sm-9">
                 <div>
+                    <text><b>Email:</b> </text>
                     <span th:text="${user.email}"></span>
                     <br/>
+                    <text><b>Full name:</b> </text>
                     <span th:text="${user.fullName}"></span>
+                    <br/>
+                    <text><b>User Roles:</b> </text>
+                    <tr th:each="role : ${user.getRoles()}">
+                        <td th:text="${role.getName()}"></td>
+                    </tr>
                 </div>
             </div>
         </div>

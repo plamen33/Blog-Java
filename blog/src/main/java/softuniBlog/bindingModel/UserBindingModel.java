@@ -3,7 +3,7 @@ package softuniBlog.bindingModel;
 import javax.validation.constraints.NotNull;
 
 public class UserBindingModel {
-    @NotNull
+    @NotNull   // here it means that when we leave field empty - it will add an empty string - ""
     private String email;
 
     @NotNull
@@ -14,6 +14,7 @@ public class UserBindingModel {
 
     @NotNull
     private String confirmPassword;
+
 
     public String getEmail() {
         return email;

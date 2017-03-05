@@ -1,5 +1,6 @@
 package softuniBlog.controller;
 
+import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -9,7 +10,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
@@ -20,8 +25,11 @@ import softuniBlog.repository.CategoryRepository;
 import softuniBlog.repository.TagRepository;
 import softuniBlog.repository.UserRepository;
 
+import javax.validation.Valid;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
@@ -53,16 +61,35 @@ public class ArticleController {
 
     @GetMapping("/article/create")
     @PreAuthorize("isAuthenticated()")
-    public String create(Model model){
+    public String create(Model model, ArticleBindingModel articleBindingModel){
         List<Category> categories = this.categoryRepository.findAll();
         model.addAttribute("categories", categories);
         model.addAttribute("view", "article/create");
         return "base-layout";
     }
 
-    @PostMapping("/article/create")
+//    @PostMapping("/article/create")
+    @RequestMapping(value = "/article/create", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(ArticleBindingModel articleBindingModel){
+    public String createProcess(@Valid ArticleBindingModel articleBindingModel, BindingResult bindingResult,  RedirectAttributes redirectAttributes){
+        if (bindingResult.hasErrors()) {
+            if(articleBindingModel.getTitle().length()>30){
+                redirectAttributes.addFlashAttribute("error", "Article title should not exceed 30 symbols");
+                return "redirect:/article/create";
+            }
+            if(articleBindingModel.getTagString().length()>21){
+
+                redirectAttributes.addFlashAttribute("error", "Tag should not exceed 21 symbols");
+                articleBindingModel.setTagString(articleBindingModel.getTagString().substring(0, 21));
+                return "redirect:/article/create";
+            }
+            if(articleBindingModel.getContent().length()>2100){
+                redirectAttributes.addFlashAttribute("error", "Content should not exceed 2100 symbols");
+                articleBindingModel.setContent(articleBindingModel.getContent().substring(0, 2099));
+            }
+
+
+        }
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = this.categoryRepository.findOne(articleBindingModel.getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
@@ -74,6 +101,7 @@ public class ArticleController {
                 category,
                 tags
         );
+
 
         this.articleRepository.saveAndFlush(articleEntity);
         return "redirect:/";

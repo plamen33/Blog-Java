@@ -5918,3 +5918,7 @@ button.close {
 .panel-primary .panel-title {
   color: #fff;
 }
+.formError {
+  color: #ff5b47;
+  font-style: italic;
+}

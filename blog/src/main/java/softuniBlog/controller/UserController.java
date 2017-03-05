@@ -87,6 +87,12 @@ public class UserController {
                 .getPrincipal();
 
         User user = this.userRepository.findByEmail(principal.getUsername());
+        //if(user.isAdmin()){
+          //  user.getRoles().forEach(s->s.getName().toLowerCase());
+        //}
+        //else{
+
+        //}
 
         model.addAttribute("user", user);
         model.addAttribute("view", "user/profile");

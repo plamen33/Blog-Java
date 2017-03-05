@@ -4,16 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.CategoryBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
 import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.CategoryRepository;
 
+import javax.naming.Binding;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.Comparator;
 import java.util.List;
@@ -45,8 +48,10 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-    public String createProcess(CategoryBindingModel categoryBindingModel){
+    public String createProcess(CategoryBindingModel categoryBindingModel, RedirectAttributes redirectAttributes){
+
         if(StringUtils.isEmpty(categoryBindingModel.getName())){
+            redirectAttributes.addFlashAttribute("error", "Category should not be empty");
             return "redirect:/admin/categories/create";
         }
 
@@ -54,6 +59,19 @@ public class CategoryController {
         this.categoryRepository.saveAndFlush(category);
         return "redirect:/admin/categories/";
     }
+//    @PostMapping("/create")
+//    public String createProcess(CategoryBindingModel categoryBindingModel){
+//        if(StringUtils.isEmpty(categoryBindingModel.getName())){
+//            return "redirect:/admin/categories/create";
+//        }
+//
+//        Category category = new Category(categoryBindingModel.getName());
+//        this.categoryRepository.saveAndFlush(category);
+//        return "redirect:/admin/categories/";
+//    }
+
+//    public String createProcess(CategoryBindingModel categoryBindingModel, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+//        bindingResult.hasFieldErrors("category_name");
 
     @GetMapping("/edit/{id}")
     public String edit(Model model, @PathVariable Integer id){
