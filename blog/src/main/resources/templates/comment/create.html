@@ -1,0 +1,26 @@
+<main>
+    <div class="container body-content span=8 offset=2">
+        <div class="well">
+            <form class="form-horizontal" th:action="@{/comment/create/{id}(id=${article.id})}" method="POST">
+                <fieldset>
+                    <legend>New Comment</legend>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="article_comment">Comment</label>
+                        <div class="col-sm-4 ">
+                            <input type="text" class="form-control" id="article_comment" placeholder="Comment"
+                                   name="commentString"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-4">
+                            <a class="btn btn-default" th:href="@{/}">Cancel</a>
+                            <input type="submit" class="btn btn-primary" value="Submit"/>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</main>

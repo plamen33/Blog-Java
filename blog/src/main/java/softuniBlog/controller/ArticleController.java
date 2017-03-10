@@ -16,20 +16,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import softuniBlog.bindingModel.ArticleBindingModel;
-import softuniBlog.entity.Article;
-import softuniBlog.entity.Category;
-import softuniBlog.entity.Tag;
+import softuniBlog.entity.*;
 import softuniBlog.entity.User;
-import softuniBlog.repository.ArticleRepository;
-import softuniBlog.repository.CategoryRepository;
-import softuniBlog.repository.TagRepository;
-import softuniBlog.repository.UserRepository;
+import softuniBlog.repository.*;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -43,6 +35,8 @@ public class ArticleController {
     private CategoryRepository categoryRepository;
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
     private HashSet<Tag> findTagsFromString(String tagString){
         HashSet<Tag> tags = new HashSet<>();
@@ -119,7 +113,12 @@ public class ArticleController {
             model.addAttribute("user", entityUser);
         }
         Article article = this.articleRepository.findOne(id);
+        List<Comment> comments = this.commentRepository.findByArticle(article);
+        comments.stream()
+                .sorted((object1, object2) -> object1.getId().compareTo(object2.getId()));
+        Collections.reverse(comments);
 
+        model.addAttribute("comments", comments);
         model.addAttribute("article", article);
         model.addAttribute("view", "article/details");
         return "base-layout";

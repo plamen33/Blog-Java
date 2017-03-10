@@ -15,12 +15,25 @@
 
                         <div class="pull-right">
                             <th:block sec:authorize="isAuthenticated()" th:if="${user.isAdmin() OR user.isAuthor(article)}">
-                                <a class="btn btn-success btn-xs" th:href="@{/article/edit/{id}(id = ${article.id})}">Edit</a>
-                                <a class="btn btn-danger btn-xs" th:href="@{/article/delete/{id}(id = ${article.id})}">Delete</a>
+                                <a class="btn btn-success btn-sm" th:href="@{/article/edit/{id}(id = ${article.id})}">Edit</a>
+                                <a class="btn btn-danger btn-sm" th:href="@{/article/delete/{id}(id = ${article.id})}">Delete</a>
                             </th:block>
-
-                            <a class="btn btn-default btn-xs" th:href="@{/}">back &raquo;</a>
+                            <th:block sec:authorize="isAuthenticated()">
+                                <a class="btn btn-primary btn-sm" th:href="@{/comment/create/{id}(id = ${article.id})}">Comment</a>
+                            </th:block>
+                            <a class="btn btn-default btn-sm" th:href="@{/}">Back &raquo;</a>
                         </div>
+                        <br>
+                        <h3><p class="text-success">Comments:</p></h3>
+                        <th:block th:each="comment : ${comments}">
+                            <blockquote class="blockquote">
+                                <p>
+                                    <a>&quot;</a><a th:text="${comment.text}"></a><a>&quot;</a>
+                                </p>
+                                <b><h5><strong><cite title="Source Title" th:text="${comment.user.fullName}"></cite></strong></h5></b><a>  </a><small th:text="${comment.date}"></small>
+                            </blockquote>
+                        </th:block>
+                        </br>
                     </footer>
                 </article>
             </div>
