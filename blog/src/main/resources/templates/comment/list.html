@@ -1,0 +1,33 @@
+<main>
+    <div class="container body-content">
+        <div class="well">
+            <h2>All Comments</h2>
+            <div class="row">
+                <table class="table table-striped table-hover ">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Article</th>
+                        <th>Author</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:each="comment : ${comments}">
+                        <td th:text="${commentStat.count}"></td> <!--this one stat.count creates list of numbers-->
+                        <td th:text="${comment.summary}"></td>
+                        <td><a th:text="${comment.article.title}" th:href="@{/article/{id}(id = ${comment.article.id})}"></a></td>
+                        <td th:text="${comment.user.email}"></td>
+                        <td>
+                            <a>Edit</a>
+                            <a>Delete</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

@@ -13,11 +13,11 @@
 
                         <small class="author" th:text="${article.author.fullName}"></small>
                         <p>
-                            <a class="btn btn-default btn-xs" th:each="tag:${article.tags}" th:href="@{/tag/{name}(name=${tag.name})}" th:text="${tag.name}"></a>
+                            <a class="btn btn-default btn-sm" th:each="tag:${article.tags}" th:href="@{/tag/{name}(name=${tag.name})}" th:text="${tag.name}"></a>
                         </p>
                         <footer>
                             <div class="pull-right">
-                                <a class="btn btn-default btn-xs"
+                                <a class="btn btn-default"
                                    th:href="@{/article/{id}(id=${article.id})}">Read more &raquo;</a>
                             </div>
                         </footer>

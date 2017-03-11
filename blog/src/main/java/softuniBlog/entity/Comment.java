@@ -69,4 +69,13 @@ public class Comment {
 
     }
 
+    @Transient // it means that this method shouldn't be saved in our database
+    public String getSummary(){
+        if(this.getText().length()>17){
+            return this.getText().substring(0, 17) + "...";
+        }
+        return this.getText();
+        //return this.getContent().substring(0, this.getContent().length() / 2) + "...";
+    }
+
 }

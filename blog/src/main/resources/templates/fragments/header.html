@@ -21,6 +21,11 @@
                         </ul>
                     </li>
                     <li sec:authorize="isAuthenticated()">
+                        <a th:href="@{/comment/list}">
+                            Comments
+                        </a>
+                    </li>
+                    <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/article/create}">
                             Create Article
                         </a>
