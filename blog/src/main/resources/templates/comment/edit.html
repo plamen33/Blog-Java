@@ -8,7 +8,8 @@
                     <div class="form-group">
                         <label class="col-sm-4 control-label" for="comment_content">Comment</label>
                         <div class="col-sm-6">
-                            <input type="text" class="form-control" rows="6" id="comment_content" name="commentString" th:value="${comment.text}" required="required"/>
+                            <!--<input type="text" class="form-control" rows="6" id="comment_content" name="commentString" th:value="${comment.text}" required="required"/>-->
+                            <textarea maxlength="210" class="form-control" rows="7" id="comment_content" name="commentString" th:inline="text" required="required">[[${comment.text}]]</textarea>
                         </div>
                     </div>
 
