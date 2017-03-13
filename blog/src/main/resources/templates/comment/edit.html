@@ -1,0 +1,25 @@
+<main>
+    <div class="container body-content span=8 offset=2">
+        <div class="well">
+            <form class="form-horizontal" th:action="@{/comment/edit/{id}(id=${comment.id})}" method="POST">
+                <fieldset>
+                    <legend>Edit Comment</legend>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="comment_content">Comment</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" rows="6" id="comment_content" name="commentString" th:value="${comment.text}" required="required"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4 col-sm-offset-4">
+                            <a class="btn btn-default" th:href="@{/comment/list}">Cancel</a>
+                            <input type="submit" class="btn btn-warning" value="Edit"/>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</main>

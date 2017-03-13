@@ -14,15 +14,19 @@
                     </tr>
                     </thead>
                     <tbody>
-
                     <tr th:each="comment : ${comments}">
                         <td th:text="${commentStat.count}"></td> <!--this one stat.count creates list of numbers-->
                         <td th:text="${comment.summary}"></td>
                         <td><a th:text="${comment.article.title}" th:href="@{/article/{id}(id = ${comment.article.id})}"></a></td>
                         <td th:text="${comment.user.email}"></td>
-                        <td>
-                            <a>Edit</a>
-                            <a>Delete</a>
+                        <td sec:authorize="isAuthenticated()" th:if="${user.isAdmin() or user.isAuthorComment(comment)}" >
+
+                            <a class="btn btn-warning btn-xs" th:href="@{/comment/edit/{id}(id = ${comment.id})}">Edit</a>
+                            <a class="btn btn-danger btn-xs" th:href="@{/comment/delete/{id}(id = ${comment.id})}">Delete</a>
+
+                        </td>
+                        <td >
+
                         </td>
                     </tr>
                     </tbody>

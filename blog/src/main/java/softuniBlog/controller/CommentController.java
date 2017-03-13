@@ -1,7 +1,9 @@
 package softuniBlog.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.annotation.Transient;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -39,6 +41,12 @@ public class CommentController {
         comments = comments.stream().sorted(Comparator.comparing(Comment::getId)).collect(Collectors.toList());
         Collections.reverse(comments);  // we sort ascending and do a reverse
         //        ZonedDateTime d = ZonedDateTime.parse(b, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG));
+        if (!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)) {
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User entityUser = this.userRepository.findByEmail(principal.getUsername());
+
+            model.addAttribute("user", entityUser);
+        }
 
         model.addAttribute("comments", comments);
         return "base-layout";
@@ -72,4 +80,71 @@ public class CommentController {
 
         return "redirect:/article/"+id;
     }
+    @GetMapping("/comment/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String edit(@PathVariable Integer id, Model model){
+        if(!this.commentRepository.exists(id)){
+            return "redirect:/";
+        }
+        Comment comment = this.commentRepository.findOne(id);
+        if(!this.isUserAdmin(comment)){  // only admin or author can edit certain comments - avoid hacking the edit functionality
+            return "redirect:/comment/list";
+        }
+        model.addAttribute("view", "comment/edit");
+        model.addAttribute("comment", comment);
+
+        return "base-layout";
+    }
+    @PostMapping("/comment/edit/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String editProcess(@PathVariable Integer id, CommentBindingModel commentBindingModel){
+        if(!this.commentRepository.exists(id)){
+            return "redirect:/";
+        }
+        Comment comment = this.commentRepository.findOne(id);
+        Article article = this.articleRepository.findOne(comment.getArticle().getId());
+        if(!this.isUserAdmin(comment)){  // only admin or author can edit certain comments - avoid hacking the edit functionality
+            return "redirect:/comment/list";
+        }
+        comment.setText(commentBindingModel.getCommentString());
+
+        this.commentRepository.saveAndFlush(comment);
+        return "redirect:/comment/list";
+    }
+
+    @GetMapping("/comment/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String delete(@PathVariable Integer id, Model model) {
+        if (!this.commentRepository.exists(id)) {
+            return "redirect:/";
+        }
+        Comment comment = this.commentRepository.findOne(id);
+        if (!isUserAdmin(comment)) {
+            return "redirect:/comment/list";
+        }
+        model.addAttribute("comment", comment);
+        model.addAttribute("view", "comment/delete");
+        return "base-layout";
+    }
+
+    @PostMapping("/comment/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String deleteProcess(@PathVariable Integer id, CommentBindingModel commentBindingModel) {
+        if (!this.commentRepository.exists(id)) {
+            return "redirect:/";
+        }
+        Comment comment = this.commentRepository.findOne(id);
+        if (!isUserAdmin(comment)) {
+            return "redirect:/comment/list";
+        }
+        this.commentRepository.delete(comment);
+        return "redirect:/comment/list";
+    }
+    @Transient
+    public boolean isUserAdmin(Comment comment) {
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User userEntity = this.userRepository.findByEmail(user.getUsername());
+        return userEntity.isAdmin() || userEntity.isCommentAuthor(comment);
+    }
+
 }
