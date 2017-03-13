@@ -1,5 +1,7 @@
 package softuniBlog.bindingModel;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.validation.constraints.NotNull;
 
 public class UserBindingModel {
@@ -15,6 +17,16 @@ public class UserBindingModel {
     @NotNull
     private String confirmPassword;
 
+    @NotNull
+    private MultipartFile picture;
+
+    public MultipartFile getPicture() {
+        return picture;
+    }
+
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
+    }
 
     public String getEmail() {
         return email;

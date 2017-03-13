@@ -14,7 +14,7 @@ public class BlogUserDetails extends User implements UserDetails {
     private User user;
 
     public BlogUserDetails(User user, ArrayList<String> roles) {
-        super(user.getEmail(), user.getFullName(), user.getPassword());
+        super(user.getEmail(), user.getFullName(), user.getPicture(), user.getPassword());
 
         this.roles = roles;
         this.user = user;

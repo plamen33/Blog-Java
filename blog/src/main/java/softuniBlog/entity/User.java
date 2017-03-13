@@ -17,14 +17,19 @@ public class User {
 
     private String password;
 
+    private String picture;
+
     private Set<Role> roles;
 
     private Set<Article> articles;
 
-    public User(String email, String fullName, String password) {
+    private Set<Comment> comments;
+
+    public User(String email, String fullName, String password, String picture) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;
+        this.picture = picture;
 
         this.roles = new HashSet<>();
         this.articles = new HashSet<>();
@@ -70,6 +75,15 @@ public class User {
         this.password = password;
     }
 
+    @Column(name = "picture", unique = true)
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles")
     public Set<Role> getRoles() {
@@ -99,6 +113,11 @@ public class User {
                 .stream()
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
     }
+
+    @OneToMany(mappedBy = "user")
+    public Set<Comment> getComments() {return comments;}
+
+    public void setComments(Set<Comment> comments){this.comments = comments;}
 
     @Transient
     public boolean isAuthor(Article article) {

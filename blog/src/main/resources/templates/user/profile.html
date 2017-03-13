@@ -1,20 +1,33 @@
 <main>
-    <div class="container body-container">
-        <div class="row">
-            <div id="main" class="col-sm-9">
-                <div>
-                    <text><b>Email:</b> </text>
-                    <span th:text="${user.email}"></span>
-                    <br/>
-                    <text><b>Full name:</b> </text>
-                    <span th:text="${user.fullName}"></span>
-                    <br/>
-                    <text><b>User Roles:</b> </text>
-                    <tr th:each="role : ${user.getRoles()}">
-                        <td th:text="${role.getName()}"></td>
-                    </tr>
+    <div class="container body-container" >
+        <form th:action="@{/profile}" method="post"  enctype="multipart/form-data">
+            <div class="row">
+                <div id="main" class="col-sm-9">
+                    <div>
+                        <img class="img-rounded" th:src="@{/images/users/{picture}(picture=${user.picture})}" height="200"/>
+                        <br/>
+                        <br/>
+                        <text><b>Email:</b> </text>
+                        <span th:text="${user.email}"></span>
+                        <br/>
+                        <text><b>Full name:</b> </text>
+                        <span th:text="${user.fullName}"></span>
+                        <br/>
+                        <text><b>User Roles:</b> </text>
+                        <tr th:each="role : ${user.getRoles()}">
+                            <td th:text="${role.getName()}"></td>
+                        </tr>
+
+                        <div class="row">
+                            <label class="col-sm-4 control-label" for="user_picture">Change profile photo: </label>
+                        </div>
+                        <div class="col-sm-4 ">
+                            <input align="left" type="file"  id="user_picture" name="picture" onchange="this.form.submit()"/>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </main>
