@@ -47,6 +47,14 @@ public class UserController {
             return "redirect:/register";
         }
 
+        boolean userAlreadyExists = this.userRepository.findByEmail(userBindingModel.getEmail()) != null;
+
+        if (userAlreadyExists){
+            System.out.println("USER EXISTS in DB");
+
+            return "redirect:/register";
+        }
+
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
         User user = new User(
@@ -60,20 +68,27 @@ public class UserController {
 
         user.addRole(userRole);
         String root = System.getProperty("user.dir");
-
         MultipartFile file = userBindingModel.getPicture();
-        if (file != null){
-            String originalFileName = user.getFullName() + file.getOriginalFilename();
-            File imageFile=new File(root + "\\src\\main\\resources\\static\\images\\users\\", originalFileName);
 
-            try {
-                file.transferTo(imageFile);
-                user.setPicture(originalFileName);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if (file != null && (file.getSize() > 0 && file.getSize() < 77000)) {
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."), file.getOriginalFilename().length()).toLowerCase();
+            if (fileExtension.equals(".png") || fileExtension.equals(".jpg") || fileExtension.equals(".gif") || fileExtension.equals(".jpeg")) {
+
+                /// add new picture
+                String originalFileName = user.getFullName() + file.getOriginalFilename();
+                File imageFile = new File(root + "\\src\\main\\resources\\static\\images\\users\\", originalFileName);
+
+                try {
+                    file.transferTo(imageFile);
+                    user.setPicture(originalFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            user.setPicture("javauser.jpg");
+            System.out.println("Too Big");
         }
-
         this.userRepository.saveAndFlush(user);
 
         return "redirect:/login";
@@ -114,30 +129,68 @@ public class UserController {
     @PostMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public String profilePost(UserBindingModel userBindingModel, MultipartFile file){
-        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        try {
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
 
-        User user = this.userRepository.findByEmail(principal.getUsername());
-        String root = System.getProperty("user.dir");
+            User user = this.userRepository.findByEmail(principal.getUsername());
 
+            String root = System.getProperty("user.dir");
+            file = userBindingModel.getPicture();
 
-        file = userBindingModel.getPicture();
-        if (file != null){
-            String originalFileName = user.getFullName() + file.getOriginalFilename();
-            File imageFile=new File(root + "\\src\\main\\resources\\static\\images\\users\\", originalFileName);
+            if (file != null ) {
+                if (file.getSize() > 0 && file.getSize() < 77000) {
+                    String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."), file.getOriginalFilename().length()).toLowerCase();
+                    if (fileExtension.equals(".png") || fileExtension.equals(".jpg") || fileExtension.equals(".gif") || fileExtension.equals(".jpeg")) {
 
-            try {
-                file.transferTo(imageFile);
-                user.setPicture(originalFileName);
-            } catch (IOException e) {
-                e.printStackTrace();
+                        //delete old pic:
+                        String oldPic = user.getPicture();
+                        if (oldPic != null) {
+                            File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\users\\", oldPic);
+                            try {
+                                if (oldPicFile.delete()) {
+                                    System.out.println(oldPicFile.getName() + " is deleted!");
+                                } else {
+                                    System.out.println("Delete operation failed.");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        ///////
+
+                        /// add new picture
+                        String originalFileName = user.getFullName() + file.getOriginalFilename();
+                        File imageFile = new File(root + "\\src\\main\\resources\\static\\images\\users\\", originalFileName);
+
+                        try {
+                            file.transferTo(imageFile);
+                            user.setPicture(originalFileName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } // image type limit
+                    else{
+                        System.out.println("You can upload only images !");
+                    }
+                } // size limit
+                else{
+                    System.out.println("file too big");
+                }
             }
+            else {
+                System.out.println("Invalid file");
+            }
+
+            this.userRepository.saveAndFlush(user);
+
+            return "redirect:/profile";
+        }// end of try
+        catch(Exception e){
+            e.printStackTrace();
+            return "redirect:/profile";
         }
-
-        this.userRepository.saveAndFlush(user);
-
-        return "redirect:/profile";
     }
 }
 

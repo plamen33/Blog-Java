@@ -7,6 +7,7 @@
                     <thead>
                     <tr>
                         <th>#</th>
+                        <th>Photo</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Actions</th>
@@ -16,7 +17,8 @@
 
                     <th:block th:each="user : ${users}">
                         <tr th:class="${user.isAdmin() ? 'info' : null}">
-                            <td th:text="${user.id}"></td>
+                            <td th:text="${userStat.count}"></td>
+                            <td> <img class="img-circle" th:src="@{/images/users/{picture}(picture=${user.picture})}" height="43" width="43"/></td>
                             <td th:text="${user.fullName}"></td>
                             <td th:text="${user.email}"></td>
                             <td>
