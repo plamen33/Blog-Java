@@ -1,7 +1,7 @@
 <main xmlns:th="http://www.w3.org/1999/xhtml">
     <div class="container body-content span=8 offset=2">
         <div class="well">
-            <form class="form-horizontal" th:action="@{/article/create}" th:object="${articleBindingModel}" method="post"  >
+            <form class="form-horizontal" th:action="@{/article/create}" th:object="${articleBindingModel}" method="post" enctype="multipart/form-data"  >
                 <div class="alert alert-danger" th:if="${error}">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                     <strong th:text="${error}"></strong>
@@ -36,6 +36,12 @@
                         <label class="col-sm-4 control-label" for="article_tags">Tags</label>
                         <div class="col-sm-6">
                             <input type="text" class="form-control" id="article_tags" placeholder="Tags" name="tagString" required="required"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="user_picture">Add an Image</label>
+                        <div class="col-sm-4 ">
+                            <input  type="file"  id="user_picture" name="picture"/>
                         </div>
                     </div>
                     <div class="form-group">

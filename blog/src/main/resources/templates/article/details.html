@@ -10,6 +10,9 @@
                     <p th:text="${article.content}"> </p>
 
                     <small class="author" th:text="${article.author.fullName}"></small>
+                    <br> </br>
+
+                    <img class="img-rounded" th:src="@{/images/articles/{picture}(picture=${article.picture})}" height="200"/>
 
                     <footer>
 

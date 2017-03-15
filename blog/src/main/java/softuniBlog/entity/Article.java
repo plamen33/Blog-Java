@@ -13,27 +13,10 @@ public class Article {
     private String content;
     private User author;
     private Category category;
+    private String picture;
+    private String video;
     private Set<Tag> tags;
 
-    @ManyToMany()
-    @JoinColumn(table = "articles_tags")
-    public Set<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(Set<Tag> tags) {
-        this.tags = tags;
-    }
-
-    @ManyToOne()
-    @JoinColumn(nullable = false, name = "categoryId")
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,15 +56,55 @@ public class Article {
         this.author = author;
     }
 
-    public Article(String title, String content, User author, Category category, HashSet<Tag> tags){
+    @ManyToOne()
+    @JoinColumn(nullable = false, name = "categoryId")
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    @Column(name = "video")
+    public String getVideo() {
+        return video;
+    }
+
+    public void setVideo(String video) {
+        this.video = video;
+    }
+
+    @Column(name = "picture")
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    @ManyToMany()
+    @JoinColumn(table = "articles_tags")
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public Article(String title, String content, User author, Category category, String picture, String video, HashSet<Tag> tags){
 
         this.title=title;
         this.content=content;
         this.author=author;
         this.category=category;
+        this.picture = picture;
         this.tags = tags;
     }
     public Article(){   }
+
     public Article(String title, String content, org.springframework.security.core.userdetails.User userEntity){   }
 
     @Transient

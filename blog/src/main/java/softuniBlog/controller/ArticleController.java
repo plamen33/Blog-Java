@@ -12,15 +12,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import softuniBlog.bindingModel.ArticleBindingModel;
+import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.entity.*;
 import softuniBlog.entity.User;
 import softuniBlog.repository.*;
 
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,10 +66,10 @@ public class ArticleController {
         return "base-layout";
     }
 
-//    @PostMapping("/article/create")
+    //    @PostMapping("/article/create")
     @RequestMapping(value = "/article/create", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(@Valid ArticleBindingModel articleBindingModel, BindingResult bindingResult,  RedirectAttributes redirectAttributes){
+    public String createProcess(@Valid ArticleBindingModel articleBindingModel, BindingResult bindingResult,  RedirectAttributes redirectAttributes, UserBindingModel userBindingModel){
         if (bindingResult.hasErrors()) {
             if(articleBindingModel.getTitle().length()>30){
                 redirectAttributes.addFlashAttribute("error", "Article title should not exceed 30 symbols");
@@ -83,6 +87,7 @@ public class ArticleController {
             }
 
 
+
         }
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = this.categoryRepository.findOne(articleBindingModel.getCategoryId());
@@ -93,8 +98,33 @@ public class ArticleController {
                 articleBindingModel.getContent(),
                 userEntity,
                 category,
+                articleBindingModel.getPicture().getOriginalFilename(),
+                articleBindingModel.getVideo(),
                 tags
         );
+        /// add image:
+        String root = System.getProperty("user.dir");
+        MultipartFile file = userBindingModel.getPicture();
+
+        if (file != null && (file.getSize() > 0 && file.getSize() < 77000)) {
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."), file.getOriginalFilename().length()).toLowerCase();
+            if (fileExtension.equals(".png") || fileExtension.equals(".jpg") || fileExtension.equals(".gif") || fileExtension.equals(".jpeg")) {
+
+                /// add new picture
+                String originalFileName = articleEntity.getTitle()+ "-" + file.getOriginalFilename();
+                File imageFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", originalFileName);
+
+                try {
+                    file.transferTo(imageFile);
+                    articleEntity.setPicture(originalFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+
+            System.out.println("Too Big");
+        }
 
 
         this.articleRepository.saveAndFlush(articleEntity);
@@ -151,7 +181,7 @@ public class ArticleController {
 
     @PostMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
+    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel, MultipartFile file){
         if(!this.articleRepository.exists(id)){
             return "redirect:/";
         }
@@ -167,6 +197,54 @@ public class ArticleController {
         article.setCategory(category);
         article.setContent(articleBindingModel.getContent());
         article.setTitle(articleBindingModel.getTitle());
+
+        String root = System.getProperty("user.dir");
+        file = articleBindingModel.getPicture();
+
+        if (file != null ) {
+            if (file.getSize() > 0 && file.getSize() < 77000) {
+                String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."), file.getOriginalFilename().length()).toLowerCase();
+                if (fileExtension.equals(".png") || fileExtension.equals(".jpg") || fileExtension.equals(".gif") || fileExtension.equals(".jpeg")) {
+
+                    //delete old pic:
+                    String oldPic = article.getPicture();
+                    if (oldPic != null) {
+                        File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
+                        try {
+                            if (oldPicFile.delete()) {
+                                System.out.println(oldPicFile.getName() + " is deleted!");
+                            } else {
+                                System.out.println("Delete operation failed.");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    ///////
+
+                    /// add new picture
+                    String originalFileName = article.getTitle()+ "-" + file.getOriginalFilename();
+                    File imageFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", originalFileName);
+
+                    try {
+                        file.transferTo(imageFile);
+                        article.setPicture(originalFileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } // image type limit
+                else{
+                    System.out.println("You can upload only images !");
+                }
+            } // size limit
+            else{
+                System.out.println("file too big");
+            }
+        }
+        else {
+            System.out.println("Invalid file");
+        }
+
 
         this.articleRepository.saveAndFlush(article);
         return "redirect:/article/" + article.getId();
@@ -209,6 +287,27 @@ public class ArticleController {
 
         if(!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
+        }
+        // delete comments
+        List<Comment> commentsList = this.commentRepository.findByArticle(article);
+        for (Comment comment : commentsList) {
+            this.commentRepository.delete(comment);
+        }
+
+        //delete article picture:
+        String root = System.getProperty("user.dir");
+        String oldPic = article.getPicture();
+        if (oldPic != null) {
+            File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
+            try {
+                if (oldPicFile.delete()) {
+                    System.out.println(oldPicFile.getName() + " is deleted!");
+                } else {
+                    System.out.println("Delete operation failed.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         this.articleRepository.delete(article);
