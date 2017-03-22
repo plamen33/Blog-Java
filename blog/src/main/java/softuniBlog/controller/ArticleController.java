@@ -27,6 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Controller
 public class ArticleController {
@@ -85,7 +88,10 @@ public class ArticleController {
                 redirectAttributes.addFlashAttribute("error", "Content should not exceed 2100 symbols");
                 articleBindingModel.setContent(articleBindingModel.getContent().substring(0, 2099));
             }
-
+            if(articleBindingModel.getVideo().length()>100){
+                redirectAttributes.addFlashAttribute("error", "Video link should not exceed 100 symbols");
+                articleBindingModel.setVideo(articleBindingModel.getVideo().substring(0, 100));
+            }
 
 
         }
@@ -126,7 +132,33 @@ public class ArticleController {
             System.out.println("Too Big");
         }
 
+        // add video
+        String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
+        Pattern pattern = Pattern.compile(regex);
+        String videoLink = articleBindingModel.getVideo();
 
+        if (videoLink!=null){
+            Matcher matcher = pattern.matcher(videoLink);
+            while(matcher.find()){
+                String video = matcher.group(1);
+                //System.out.println(video);
+                String extOptions = matcher.group(2);
+                ///System.out.println(extOptions);
+                if (extOptions == null || extOptions.equals("")) {
+                    articleEntity.setVideo(video);
+                    articleEntity.setVideoLink("");
+                    //String videoLink1 = articleEntity.getVideo();
+                    //if (videoLink1.length() > 100) { articleEntity.setVideoLink(null); }
+                }
+                else {
+                    // articleEntity.setVideo(video + "?start=" + extOptions);
+                    articleEntity.setVideo(video);
+                    articleEntity.setVideoLink("?start=" + extOptions);
+                    //String videoLink2 = articleEntity.getVideo();
+                    //if (videoLink2.length() > 100) { articleEntity.setVideoLink(null); }
+                }
+            }
+        }
         this.articleRepository.saveAndFlush(articleEntity);
         return "redirect:/";
     }
@@ -243,6 +275,47 @@ public class ArticleController {
         }
         else {
             System.out.println("Invalid file");
+        }
+        // edit video
+        String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
+        Pattern pattern = Pattern.compile(regex);
+        String videoLink = articleBindingModel.getVideo();
+
+        if (videoLink!=null){
+            Matcher matcher = pattern.matcher(videoLink);
+            while(matcher.find()){
+                String video = matcher.group(1);
+                String extOptions = matcher.group(2);
+                if (extOptions == null || extOptions.equals("")) {
+                    //if (videoLink.length() > 100) { article.setVideoLink(null); }
+                    //else{
+                    article.setVideo(video);
+                    article.setVideoLink("");
+                    //}
+                }
+                else {
+                    //if (videoLink.length() > 100) { article.setVideoLink(null); }
+                    // else{
+                    //article.setVideo(video + "?start=" + extOptions);
+                    article.setVideo(video);
+                    article.setVideoLink("?start=" + extOptions);
+                    //article.setVideoLink("https://www.youtube.com/embed/"+ video + "?start=" + extOptions);
+                    //https://www.youtube.com/embed/s39mNwFuQDQ?start=212
+                    //}
+                }
+            }
+            if(!matcher.matches()){
+                if (videoLink.equals("clear video")) {
+                    article.setVideo(null);
+                    article.setVideoLink("");
+                    //article.setVideoLink(null);
+                }
+//                else {
+//                    if (article.getVideo()==null ||article.getVideo().equals("") ) { article.setVideoLink(null); }
+//                    else { article.setVideoLink("https://www.youtube.com/watch?v=" + article.getVideo()); }
+//                }
+
+            }
         }
 
 

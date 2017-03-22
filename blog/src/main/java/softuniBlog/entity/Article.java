@@ -15,6 +15,7 @@ public class Article {
     private Category category;
     private String picture;
     private String video;
+    private String videoLink;
     private Set<Tag> tags;
 
 
@@ -66,15 +67,6 @@ public class Article {
         this.category = category;
     }
 
-    @Column(name = "video")
-    public String getVideo() {
-        return video;
-    }
-
-    public void setVideo(String video) {
-        this.video = video;
-    }
-
     @Column(name = "picture")
     public String getPicture() {
         return picture;
@@ -84,6 +76,22 @@ public class Article {
         this.picture = picture;
     }
 
+    @Column(name = "video")
+    public String getVideo() {
+        return video;
+    }
+
+    public void setVideo(String video) {
+        this.video = video;
+    }
+
+    public String getVideoLink() {
+        return videoLink;
+    }
+
+    public void setVideoLink(String videoLink) {
+        this.videoLink = videoLink;
+    }
     @ManyToMany()
     @JoinColumn(table = "articles_tags")
     public Set<Tag> getTags() {

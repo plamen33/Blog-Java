@@ -2,6 +2,7 @@
     <div class="container body-content">
         <div class="row">
             <div class="col-md-12">
+
                 <article>
                     <header>
                         <h2 th:text="${article.title}"></h2>
@@ -13,7 +14,15 @@
                     <br> </br>
 
                     <img class="img-rounded" th:src="@{/images/articles/{picture}(picture=${article.picture})}" height="200"/>
-
+                    <br> </br>
+                    <!--this is how ViewBag.Player like option is made in Java with model - much more simple  :-->
+                    <div th:if="${article.video!=null}">
+                        <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url} (url=${article.video})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>-->
+                        <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url}{videoLink}(url=${article.video}, videoLink=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>-->
+                        <iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url}{videoLink}(url=${article.video}, videoLink=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>
+                    </div>
+                    <!--<iframe width="560" height="315" th:src="@{{url} (url=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="1"></iframe>-->
+                    <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/s39mNwFuQDQ?start=208}" frameborder="0" alt="no video attached" allowfullscreen="1"></iframe>-->
                     <footer>
 
                         <div class="pull-right">
