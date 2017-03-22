@@ -11,6 +11,20 @@
                 </button>
             </div>
             <div class="navbar-collapse collapse">
+                <form class="navbar-form navbar-left" role="search" action="/search">
+                    <div class="form-group">
+                        <input class="form-control" placeholder="Search" type="text" name="query"/>
+                    </div>
+                    <button type="submit" class="btn btn-default">Search</button>
+                </form>
+                <!--<ul class="nav navbar-nav navbar-right">-->
+                <!--<li class="dropdown">-->
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories<span class="caret"></span></a>-->
+                <!--<ul class="dropdown-menu" role="menu">-->
+                <!--<li th:each="category : ${categories}"><a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}"></a></li>-->
+                <!--</ul>-->
+                <!--</li>-->
+                <!--</ul>-->
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" sec:authorize="hasRole('ADMIN')">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
@@ -19,6 +33,11 @@
                             <li><a th:href="@{/admin/categories/}">Categories</a></li>
                             <li><a th:href="@{/admin/users/}">Users</a></li>
                         </ul>
+                    </li>
+                    <li sec:authorize="isAnonymous() or isAuthenticated()">
+                        <a th:href="@{/search?query=}">
+                            Search
+                        </a>
                     </li>
                     <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/comment/list}">
@@ -34,6 +53,10 @@
                         <a th:href="@{/profile}">
                             My Profile
                         </a>
+                    </li>
+                    <li sec:authorize="isAuthenticated()">
+
+                        <img class="img-circle" th:src="@{/images/users/{one}(one=${user.picture})}" height="49" width="49"/>
                     </li>
                     <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/logout}">

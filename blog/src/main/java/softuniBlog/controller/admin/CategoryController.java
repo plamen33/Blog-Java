@@ -1,6 +1,8 @@
 package softuniBlog.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -13,8 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import softuniBlog.bindingModel.CategoryBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
+import softuniBlog.entity.User;
 import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.CategoryRepository;
+import softuniBlog.repository.UserRepository;
 
 import javax.naming.Binding;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -29,6 +33,8 @@ public class CategoryController {
     private CategoryRepository categoryRepository;
     @Autowired
     private ArticleRepository articleRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/")
     public String list(Model model){
@@ -37,12 +43,20 @@ public class CategoryController {
         categories = categories.stream()
                 .sorted(Comparator.comparingInt(Category::getId))
                 .collect(Collectors.toList());
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        model.addAttribute("user", user);
         model.addAttribute("categories", categories);
         return "base-layout";
     }
 
     @GetMapping("/create")
     public String create (Model model){
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        model.addAttribute("user", user);
         model.addAttribute("view", "admin/category/create");
         return "base-layout";
     }
@@ -78,6 +92,10 @@ public class CategoryController {
         if(!this.categoryRepository.exists(id)){
             return "redirect:/admin/categories/";
         }
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        model.addAttribute("user", user);
         model.addAttribute("view", "admin/category/edit");
         Category category = this.categoryRepository.findOne(id);
         model.addAttribute("category", category);
@@ -100,7 +118,10 @@ public class CategoryController {
         if(!this.categoryRepository.exists(id)){
             return "redirect:/admin/categories/";
         }
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
 
+        model.addAttribute("user", user);
         Category category = this.categoryRepository.findOne(id);
         model.addAttribute("category", category);
         model.addAttribute("view", "admin/category/delete");

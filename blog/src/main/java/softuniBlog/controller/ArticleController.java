@@ -1,9 +1,11 @@
 package softuniBlog.controller;
 
+import org.codehaus.groovy.runtime.powerassert.SourceText;
 import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,17 +18,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
+import org.thymeleaf.util.StringUtils;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.entity.*;
 import softuniBlog.entity.User;
 import softuniBlog.repository.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -64,6 +67,10 @@ public class ArticleController {
     @PreAuthorize("isAuthenticated()")
     public String create(Model model, ArticleBindingModel articleBindingModel){
         List<Category> categories = this.categoryRepository.findAll();
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        model.addAttribute("user", user);
         model.addAttribute("categories", categories);
         model.addAttribute("view", "article/create");
         return "base-layout";
@@ -93,8 +100,15 @@ public class ArticleController {
                 articleBindingModel.setVideo(articleBindingModel.getVideo().substring(0, 100));
             }
 
-
         }
+        Integer articleLikes = 0;
+
+        Integer articleDislikes = 0;
+
+        String likedUsers = "";
+
+        String dislikedUsers = "";
+
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = this.categoryRepository.findOne(articleBindingModel.getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
@@ -132,6 +146,8 @@ public class ArticleController {
             System.out.println("Too Big");
         }
 
+//        https://youtu.be/lisiwUZJXqQ?t=2000
+//        https://www.youtube.com/watch?v=lisiwUZJXqQ?t=2000
         // add video
         String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
         Pattern pattern = Pattern.compile(regex);
@@ -159,6 +175,7 @@ public class ArticleController {
                 }
             }
         }
+
         this.articleRepository.saveAndFlush(articleEntity);
         return "redirect:/";
     }
@@ -183,6 +200,10 @@ public class ArticleController {
         model.addAttribute("comments", comments);
         model.addAttribute("article", article);
         model.addAttribute("view", "article/details");
+
+
+        System.out.println("https://www.youtube.com/embed/"+ article.getVideo());
+
         return "base-layout";
 
     }
@@ -203,6 +224,10 @@ public class ArticleController {
         String tagString = article.getTags()
                 .stream().map(Tag::getName)
                 .collect(Collectors.joining(", "));
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        model.addAttribute("user", user);
         model.addAttribute("tags", tagString);
         model.addAttribute("article", article);
         model.addAttribute("view", "article/edit");
@@ -241,15 +266,17 @@ public class ArticleController {
                     //delete old pic:
                     String oldPic = article.getPicture();
                     if (oldPic != null) {
-                        File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
-                        try {
-                            if (oldPicFile.delete()) {
-                                System.out.println(oldPicFile.getName() + " is deleted!");
-                            } else {
-                                System.out.println("Delete operation failed.");
+                        if(!article.getPicture().equals("javauser.jpg")) {
+                            File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
+                            try {
+                                if (oldPicFile.delete()) {
+                                    System.out.println(oldPicFile.getName() + " is deleted!");
+                                } else {
+                                    System.out.println("Delete operation failed.");
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
                     ///////
@@ -276,6 +303,7 @@ public class ArticleController {
         else {
             System.out.println("Invalid file");
         }
+
         // edit video
         String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
         Pattern pattern = Pattern.compile(regex);
@@ -298,7 +326,9 @@ public class ArticleController {
                     // else{
                     //article.setVideo(video + "?start=" + extOptions);
                     article.setVideo(video);
-                    article.setVideoLink("?start=" + extOptions);
+                    //article.setVideoLink("?start=" + extOptions);
+                    article.setVideoLink(extOptions);
+
                     //article.setVideoLink("https://www.youtube.com/embed/"+ video + "?start=" + extOptions);
                     //https://www.youtube.com/embed/s39mNwFuQDQ?start=212
                     //}
@@ -318,7 +348,6 @@ public class ArticleController {
             }
         }
 
-
         this.articleRepository.saveAndFlush(article);
         return "redirect:/article/" + article.getId();
     }
@@ -334,7 +363,10 @@ public class ArticleController {
         if(!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
         }
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
 
+        model.addAttribute("user", user);
         model.addAttribute("article", article);
         model.addAttribute("view", "article/delete");
 
@@ -387,5 +419,52 @@ public class ArticleController {
         return "redirect:/";
     }
 
+
+    @GetMapping("/search")
+    public String search(HttpServletRequest request, Model model) {
+        String query = request.getParameter("query");
+
+        System.out.println(query);
+        boolean init = false;
+        List<Article> foundArticles = new ArrayList<>();
+        if(query.equals("")){
+            init = true;
+        }
+        else{
+            List<Article> articles = this.articleRepository.findAll();
+
+            for (Article article : articles) {
+                boolean articleContainsQuery = StringUtils.containsIgnoreCase(article.getTitle(), query, Locale.getDefault());
+                boolean articleContainsQueryContent = StringUtils.containsIgnoreCase(article.getContent(), query, Locale.getDefault());
+                if (articleContainsQuery||articleContainsQueryContent) {
+                    foundArticles.add(article);
+                }
+            }
+        }
+        System.out.println(init);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getPrincipal().equals("anonymousUser")){
+            System.out.println("NULL");
+            model.addAttribute("init", init);
+            model.addAttribute("articles", foundArticles);
+            model.addAttribute("view", "home/search");
+
+            return "base-layout";
+        }
+        else{
+            System.out.println(auth);
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+            User user = this.userRepository.findByEmail(principal.getUsername());
+
+            model.addAttribute("init", init);
+            model.addAttribute("user", user);
+            model.addAttribute("articles", foundArticles);
+            model.addAttribute("view", "home/search");
+
+            return "base-layout";
+        }
+
+    }
 
 }

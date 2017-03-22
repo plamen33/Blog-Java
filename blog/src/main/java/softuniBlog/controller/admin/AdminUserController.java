@@ -1,6 +1,8 @@
 package softuniBlog.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +36,10 @@ public class AdminUserController {
     @GetMapping("/")
     public String listUsers(Model model){
         List<User> users = this.userRepository.findAll();
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = this.userRepository.findByEmail(principal.getUsername());
 
+        model.addAttribute("user", user);
         model.addAttribute("users", users);
         model.addAttribute("view", "admin/user/list");
 
