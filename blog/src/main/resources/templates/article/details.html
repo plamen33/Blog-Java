@@ -1,5 +1,9 @@
 <main>
     <div class="container body-content">
+        <div class="alert alert-info" th:if="${errors}">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <strong th:text="${errors}"></strong>
+        </div>
         <div class="row">
             <div class="col-md-12">
 
@@ -11,6 +15,10 @@
                     <p th:text="${article.content}"> </p>
 
                     <small class="author" th:text="${article.author.fullName}"></small>
+                    <img class="img-circle" th:src="@{/images/users/{authorpic}(authorpic=${article.author.picture})}" height="30" width="30"/>
+                    <p><small> </small></p>
+                    <text>Category: </text>
+                    <a th:text="${article.category.name}"></a>
                     <br> </br>
 
                     <img class="img-rounded" th:src="@{/images/articles/{picture}(picture=${article.picture})}" height="200"/>
@@ -18,8 +26,7 @@
                     <!--this is how ViewBag.Player like option is made in Java with model - much more simple  :-->
                     <div th:if="${article.video!=null}">
                         <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url} (url=${article.video})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>-->
-                        <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url}{videoLink}(url=${article.video}, videoLink=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>-->
-                        <iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url}{videoLink}(url=${article.video}, videoLink=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="0"></iframe>
+                        <iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/{url}(url=${article.video}, start=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="1"></iframe>
                     </div>
                     <!--<iframe width="560" height="315" th:src="@{{url} (url=${article.videoLink})}" frameborder="0" alt="no video attached" allowfullscreen="1"></iframe>-->
                     <!--<iframe width="560" height="315" th:src="@{https://www.youtube.com/embed/s39mNwFuQDQ?start=208}" frameborder="0" alt="no video attached" allowfullscreen="1"></iframe>-->
@@ -36,6 +43,27 @@
                             <a class="btn btn-default btn-sm" th:href="@{/}">Back &raquo;</a>
                         </div>
                         <br>
+                        <table>
+                            <td>
+                                <p>
+                                    <a th:href="@{/article/{id}/like(id=${article.id})}"><img class="hidden-md hidden-xs"  th:src="@{/images/common/like.jpg}" width="49"  /></a>
+                                    <span th:text="${article.articleLikes}"></span>
+                                </p>
+                            </td>
+                            <td>
+                            <td width="20" height="70" style="border-collapse: separate; padding-left: 20px;padding-right: 20px; vertical-align: top">
+                                <div class="vertical-line" >
+                                    <p></p>
+                                </div>
+                            </td>
+                            </td>
+                            <td>
+                                <p>
+                                    <a th:href="@{/article/{id}/dislike(id=${article.id})}"><img class="hidden-md hidden-xs"  th:src="@{/images/common/dislike.jpg}" width="49"  /></a>
+                                    <span th:text="${article.articleDislikes}"></span>
+                                </p>
+                            </td>
+                        </table>
                         <h3><p class="text-success">Comments:</p></h3>
                         <th:block th:each="comment : ${comments}">
                             <blockquote class="blockquote">

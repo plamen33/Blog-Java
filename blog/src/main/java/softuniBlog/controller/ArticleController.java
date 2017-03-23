@@ -120,7 +120,11 @@ public class ArticleController {
                 category,
                 articleBindingModel.getPicture().getOriginalFilename(),
                 articleBindingModel.getVideo(),
-                tags
+                tags,
+                articleLikes,
+                likedUsers,
+                articleDislikes,
+                dislikedUsers
         );
         /// add image:
         String root = System.getProperty("user.dir");
@@ -169,7 +173,7 @@ public class ArticleController {
                 else {
                     // articleEntity.setVideo(video + "?start=" + extOptions);
                     articleEntity.setVideo(video);
-                    articleEntity.setVideoLink("?start=" + extOptions);
+                    articleEntity.setVideoLink(extOptions);
                     //String videoLink2 = articleEntity.getVideo();
                     //if (videoLink2.length() > 100) { articleEntity.setVideoLink(null); }
                 }
@@ -418,7 +422,80 @@ public class ArticleController {
         this.articleRepository.delete(article);
         return "redirect:/";
     }
+    @GetMapping("/article/{id}/like")
+    @PreAuthorize("isAuthenticated()")
+    public String likeProccess(@PathVariable Integer id, RedirectAttributes redirectAttributes){
 
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        Article article = this.articleRepository.findOne(id);
+
+        Set<String> likes = new HashSet<String>(Arrays.asList(article.getLikedUsers().split(",")));
+
+        Set<String> dislikes = new HashSet<String>(Arrays.asList(article.getDislikedUsers().split(",")));
+
+        if(user.isLiked(likes)){
+            redirectAttributes.addFlashAttribute("errors", "You voted for this article already!");
+            return "redirect:/article/" + article.getId();
+        }
+
+        if(user.isDisliked(dislikes)){
+            redirectAttributes.addFlashAttribute("errors", "You voted for this article already!");
+            return "redirect:/article/" + article.getId();
+        }
+
+        String likedUsers = article.getLikedUsers() + "," + user.getId();
+
+        Integer articleLikes = article.getArticleLikes() + 1;
+
+        article.setArticleLikes(articleLikes);
+        article.setLikedUsers(likedUsers);
+
+        this.articleRepository.saveAndFlush(article);
+
+        return "redirect:/article/" + article.getId();
+
+    }
+    @GetMapping("/article/{id}/dislike")
+    @PreAuthorize("isAuthenticated()")
+    public String dislikeProccess(@PathVariable Integer id, RedirectAttributes redirectAttributes){
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User user = this.userRepository.findByEmail(principal.getUsername());
+
+        Article article = this.articleRepository.findOne(id);
+
+        Set<String> dislikes = new HashSet<String>(Arrays.asList(article.getDislikedUsers().split(",")));
+
+        Set<String> likes = new HashSet<String>(Arrays.asList(article.getLikedUsers().split(",")));
+
+        if(user.isDisliked(dislikes)){
+            redirectAttributes.addFlashAttribute("errors", "You voted for this article already!");
+            return "redirect:/article/" + article.getId();
+        }
+
+        if(user.isLiked(likes)){
+            redirectAttributes.addFlashAttribute("errors", "You voted for this article already!");
+            return "redirect:/article/" + article.getId();
+        }
+
+        String dislikedUsers = article.getDislikedUsers() + "," + user.getId();
+
+        Integer articleDislikes = article.getArticleDislikes() + 1;
+
+        article.setArticleDislikes(articleDislikes);
+        article.setDislikedUsers(dislikedUsers);
+
+        this.articleRepository.saveAndFlush(article);
+
+        return "redirect:/article/" + article.getId();
+    }
 
     @GetMapping("/search")
     public String search(HttpServletRequest request, Model model) {
@@ -468,3 +545,4 @@ public class ArticleController {
     }
 
 }
+

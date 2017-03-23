@@ -75,14 +75,14 @@ public class User {
         this.password = password;
     }
 
-    @Column(name = "picture", unique = true)
-    public String getPicture() {
+    @Column(name = "picture")   public String getPicture() {
         return picture;
     }
 
     public void setPicture(String picture) {
         this.picture = picture;
     }
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles")
@@ -107,6 +107,11 @@ public class User {
         this.articles = articles;
     }
 
+    @OneToMany(mappedBy = "user")
+    public Set<Comment> getComments() {return comments;}
+
+    public void setComments(Set<Comment> comments){this.comments = comments;}
+
     @Transient
     public boolean isAdmin() {
         return this.getRoles()
@@ -114,24 +119,31 @@ public class User {
                 .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
     }
 
-    @OneToMany(mappedBy = "user")
-    public Set<Comment> getComments() {return comments;}
-
-    public void setComments(Set<Comment> comments){this.comments = comments;}
-
     @Transient
     public boolean isAuthor(Article article) {
         return Objects.equals(this.getId(),
                 article.getAuthor().getId());
     }
-
     @Transient
     public boolean isAuthorComment(Comment comment) {
         return Objects.equals(this.getId(),
                 comment.getUser().getId());
     }
+
+
     @Transient
     public boolean isCommentAuthor (Comment comment) {
         return Objects.equals(this.getId(), comment.getUser().getId());
     }
+
+    @Transient
+    public  boolean isLiked(Set<String> likedUsers){
+        return likedUsers.contains(this.getId().toString());
+    }
+
+    @Transient
+    public  boolean isDisliked(Set<String> dislikedUsers){
+        return dislikedUsers.contains(this.getId().toString());
+    }
+
 }

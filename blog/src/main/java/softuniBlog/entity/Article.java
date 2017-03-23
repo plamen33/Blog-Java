@@ -17,7 +17,10 @@ public class Article {
     private String video;
     private String videoLink;
     private Set<Tag> tags;
-
+    private Integer articleLikes;
+    private Integer articleDislikes;
+    private String likedUsers;
+    private String dislikedUsers;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -102,7 +105,45 @@ public class Article {
         this.tags = tags;
     }
 
-    public Article(String title, String content, User author, Category category, String picture, String video, HashSet<Tag> tags){
+    @Column(name = "articleLikes")
+    public Integer getArticleLikes() {
+        return articleLikes;
+    }
+
+    public void setArticleLikes(Integer articleLikes) {
+        this.articleLikes = articleLikes;
+    }
+
+    @Column(name = "likedUsers")
+    public String getLikedUsers() {
+        return likedUsers;
+    }
+
+    public void setLikedUsers(String likedUsers) {
+        this.likedUsers = likedUsers;
+    }
+
+    @Column(name = "articleDislikes")
+    public Integer getArticleDislikes() {
+        return articleDislikes;
+    }
+
+    public void setArticleDislikes(Integer articleDislikes) {
+        this.articleDislikes = articleDislikes;
+    }
+
+    @Column(name = "dislikedUsers")
+    public String getDislikedUsers() {
+        return dislikedUsers;
+    }
+
+    public void setDislikedUsers(String dislikedUsers) {
+        this.dislikedUsers = dislikedUsers;
+    }
+
+
+
+    public Article(String title, String content, User author, Category category, String picture, String video, HashSet<Tag> tags, Integer articleLikes, String likedUsers, Integer articleDislikes, String dislikedUsers){
 
         this.title=title;
         this.content=content;
@@ -110,10 +151,19 @@ public class Article {
         this.category=category;
         this.picture = picture;
         this.tags = tags;
+        this.articleLikes = articleLikes;
+        this.likedUsers = likedUsers;
+        this.articleDislikes = articleDislikes;
+        this.dislikedUsers = dislikedUsers;
     }
     public Article(){   }
 
     public Article(String title, String content, org.springframework.security.core.userdetails.User userEntity){   }
+
+    @Transient
+    public Integer likeCount(Set<String> likes){
+        return likes.size();
+    }
 
     @Transient
     public String getSummary(){
