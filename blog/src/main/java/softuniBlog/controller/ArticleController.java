@@ -24,6 +24,7 @@ import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.entity.*;
 import softuniBlog.entity.User;
 import softuniBlog.repository.*;
+import softuniBlog.service.NotificationService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -47,6 +48,8 @@ public class ArticleController {
     private TagRepository tagRepository;
     @Autowired
     private CommentRepository commentRepository;
+    @Autowired
+    private NotificationService notifyService;
 
     private HashSet<Tag> findTagsFromString(String tagString){
         HashSet<Tag> tags = new HashSet<>();

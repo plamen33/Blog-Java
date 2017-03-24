@@ -5922,3 +5922,25 @@ button.close {
   color: #ff5b47;
   font-style: italic;
 }
+ul#messages li {
+  display: block;
+  width: 83%;
+  margin: 5px auto;
+  text-align: center;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+ul#messages li.info {
+  background: #d5d6d1;
+  /*77FF77*/
+}
+ul#messages li.warning {
+  background: #d5bc30;
+  color: white;
+}
+
+ul#messages li.error {
+  background: #d21e0c;
+  color: white;
+}

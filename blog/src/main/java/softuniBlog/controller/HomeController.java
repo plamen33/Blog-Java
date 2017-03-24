@@ -18,6 +18,7 @@ import softuniBlog.entity.User;
 import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.CategoryRepository;
 import softuniBlog.repository.UserRepository;
+import softuniBlog.service.NotificationService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class HomeController {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private NotificationService notifyService;
 
 
     @GetMapping("/")
@@ -46,6 +49,7 @@ public class HomeController {
             return "base-layout";
         }
         else{
+
             List<Category> categories = this.categoryRepository.findAll();
             UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             User user = this.userRepository.findByEmail(principal.getUsername());

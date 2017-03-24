@@ -20,6 +20,7 @@ import softuniBlog.entity.Role;
 import softuniBlog.entity.User;
 import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
+import softuniBlog.service.NotificationService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -32,6 +33,8 @@ public class UserController {
     RoleRepository roleRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private NotificationService notifyService;
 
     @GetMapping("/register")
     public String register(Model model) {
@@ -50,8 +53,7 @@ public class UserController {
         boolean userAlreadyExists = this.userRepository.findByEmail(userBindingModel.getEmail()) != null;
 
         if (userAlreadyExists){
-            System.out.println("USER EXISTS in DB");
-
+            notifyService.addErrorMessage("User already exists in Database !");
             return "redirect:/register";
         }
 
@@ -87,8 +89,8 @@ public class UserController {
             }
         } else {
             user.setPicture("javauser.jpg");
-            System.out.println("Too Big");
         }
+        notifyService.addInfoMessage("Successful registration.");
         this.userRepository.saveAndFlush(user);
 
         return "redirect:/login";
@@ -96,6 +98,7 @@ public class UserController {
 
     @GetMapping("/login")
     public String login(Model model){
+
         model.addAttribute("view", "user/login");
 
         return "base-layout";
@@ -103,6 +106,7 @@ public class UserController {
 
     @RequestMapping(value="/logout", method = RequestMethod.GET)
     public String logoutPage (HttpServletRequest request, HttpServletResponse response) {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null) {
@@ -145,16 +149,18 @@ public class UserController {
                     if (fileExtension.equals(".png") || fileExtension.equals(".jpg") || fileExtension.equals(".gif") || fileExtension.equals(".jpeg")) {
 
                         //delete old pic:
+
                         String oldPic = user.getPicture();
-                        if (oldPic != null) {
+                        if (oldPic != null && !oldPic.equals("javauser.jpg")) {
                             File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\users\\", oldPic);
                             try {
                                 if (oldPicFile.delete()) {
                                     System.out.println(oldPicFile.getName() + " is deleted!");
                                 } else {
-                                    System.out.println("Delete operation failed.");
+                                    notifyService.addErrorMessage("Delete process failed");
                                 }
                             } catch (Exception e) {
+                                notifyService.addErrorMessage("Exception due to failure with delete file process");
                                 e.printStackTrace();
                             }
                         }
@@ -172,15 +178,15 @@ public class UserController {
                         }
                     } // image type limit
                     else{
-                        System.out.println("You can upload only images !");
+                        notifyService.addErrorMessage("You can upload only images !");
                     }
                 } // size limit
                 else{
-                    System.out.println("file too big");
+                    notifyService.addWarningMessage("The loaded file was skipped due to size resrictions - 77 kB upper limit size");
                 }
             }
             else {
-                System.out.println("Invalid file");
+                notifyService.addErrorMessage("Invalid file");
             }
 
             this.userRepository.saveAndFlush(user);

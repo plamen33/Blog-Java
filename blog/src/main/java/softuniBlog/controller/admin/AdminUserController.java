@@ -18,6 +18,7 @@ import softuniBlog.entity.User;
 import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
+import softuniBlog.service.NotificationService;
 
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,8 @@ public class AdminUserController {
     private ArticleRepository articleRepository;
     @Autowired
     private RoleRepository roleRepository;
-
+    @Autowired
+    private NotificationService notifyService;
     @GetMapping("/")
     public String listUsers(Model model){
         List<User> users = this.userRepository.findAll();
@@ -123,7 +125,7 @@ public class AdminUserController {
         }
 
         this.userRepository.delete(user);
-
+        notifyService.addInfoMessage("User was successfully deleted !");
         return "redirect:/admin/users/";
     }
 }
