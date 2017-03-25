@@ -5,6 +5,7 @@
             <div class="col-md-4" th:each="category : ${categories}">
                 <header>
                     <h2>
+                        <img class="img-circle" th:src="@{/images/categories/{picture}(picture=${category.picture})}" height="43" width="43"/>
                         <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">
                         </a>
                     </h2>
@@ -14,7 +15,7 @@
             </div>
         </div>
     </div>
-<br/>
+    <br/>
     <aside>
         <h2>Recent Articles</h2>
         <a href="#" th:each="p : ${latest5Articles}" th:text="${p.title}"

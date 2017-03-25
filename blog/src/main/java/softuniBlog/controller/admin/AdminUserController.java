@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import softuniBlog.bindingModel.UserEditBindingModel;
 import softuniBlog.entity.Article;
+import softuniBlog.entity.Comment;
 import softuniBlog.entity.Role;
 import softuniBlog.entity.User;
 import softuniBlog.repository.ArticleRepository;
+import softuniBlog.repository.CommentRepository;
 import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
 import softuniBlog.service.NotificationService;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +37,10 @@ public class AdminUserController {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
+    CommentRepository commentRepository;
+    @Autowired
     private NotificationService notifyService;
+
     @GetMapping("/")
     public String listUsers(Model model){
         List<User> users = this.userRepository.findAll();
@@ -121,11 +127,59 @@ public class AdminUserController {
         User user = this.userRepository.findOne(id);
 
         for(Article article : user.getArticles()){
+
+            // delete comments of the article
+            List<Comment> commentsList = this.commentRepository.findByArticle(article);
+            for (Comment comment : commentsList) {
+                this.commentRepository.delete(comment);
+            }
+
+            System.out.println("CHECKING");
+            //delete article picture:
+            String root = System.getProperty("user.dir");
+            String oldPic = article.getPicture();
+            if (oldPic != null) {
+                File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
+                try {
+                    if (oldPicFile.delete()) {
+                        System.out.println(oldPicFile.getName() + " is deleted!");
+                    } else {
+//                        notifyService.addErrorMessage("Delete operation failed !");
+                    }
+                } catch (Exception e) {
+                    notifyService.addErrorMessage("Massive esception occurred due to file deletion issues !");
+                    e.printStackTrace();
+                }
+            }
+
             this.articleRepository.delete(article);
         }
 
+        //delete User pic:
+        String root = System.getProperty("user.dir");
+        String oldPic = user.getPicture();
+        if (oldPic != null && !oldPic.equals("javauser.jpg")) {
+            File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\users\\", oldPic);
+            try {
+                if (oldPicFile.delete()) {
+                    System.out.println(oldPicFile.getName() + " is deleted!");
+                } else {
+                    notifyService.addErrorMessage("Delete process failed");
+                }
+            } catch (Exception e) {
+                notifyService.addErrorMessage("Exception due to failure with delete file process");
+                e.printStackTrace();
+            }
+        }
+        ///////
+
+        /// delete user comments in other articles:
+        for (Comment comment:user.getComments()) {
+            this.commentRepository.delete(comment);
+        }
+
         this.userRepository.delete(user);
-        notifyService.addInfoMessage("User was successfully deleted !");
+
         return "redirect:/admin/users/";
     }
 }
