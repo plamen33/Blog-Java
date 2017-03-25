@@ -10,14 +10,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import softuniBlog.bindingModel.UserBindingModel;
+import softuniBlog.entity.Category;
 import softuniBlog.entity.Role;
 import softuniBlog.entity.User;
+import softuniBlog.repository.CategoryRepository;
 import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
 import softuniBlog.service.NotificationService;
@@ -25,6 +24,7 @@ import softuniBlog.service.NotificationService;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 public class UserController {
@@ -35,6 +35,8 @@ public class UserController {
     UserRepository userRepository;
     @Autowired
     private NotificationService notifyService;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @GetMapping("/register")
     public String register(Model model) {
@@ -197,6 +199,32 @@ public class UserController {
             e.printStackTrace();
             return "redirect:/profile";
         }
+    }
+
+    @GetMapping("/profile/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String profileOfUser(@PathVariable Integer id , Model model){
+        List<Category> categories = categoryRepository.findAll();
+        User user = this.userRepository.findOne(id);
+
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        User userEntity = this.userRepository.findByEmail(principal.getUsername());
+
+        if(userEntity.getId().equals(user.getId())) {
+            model.addAttribute("categories", categories);
+            model.addAttribute("user", user);
+            model.addAttribute("view", "user/profile");
+            return "base-layout";
+        }
+
+        model.addAttribute("categories", categories);
+        model.addAttribute("user", user);
+        model.addAttribute("view", "user/profileOfUser");
+
+        return "base-layout";
     }
 
 }

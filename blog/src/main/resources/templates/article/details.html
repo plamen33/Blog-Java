@@ -18,7 +18,7 @@
                     <img class="img-circle" th:src="@{/images/users/{authorpic}(authorpic=${article.author.picture})}" height="30" width="30"/>
                     <p><small> </small></p>
                     <text>Category: </text>
-                    <a th:text="${article.category.name}"></a>
+                    <a th:href="@{/category/{id}(id=${article.category.id})}" th:text="${article.category.name}"></a>
                     <br> </br>
 
                     <img class="img-rounded" th:src="@{/images/articles/{picture}(picture=${article.picture})}" height="200"/>

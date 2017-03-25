@@ -17,20 +17,18 @@ import softuniBlog.repository.ArticleRepository;
 import softuniBlog.repository.CommentRepository;
 import softuniBlog.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
 public class CommentController {
     @Autowired
-     ArticleRepository articleRepository;
+    ArticleRepository articleRepository;
     @Autowired
     UserRepository userRepository;
     @Autowired

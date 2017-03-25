@@ -18,12 +18,12 @@
                     <button type="submit" class="btn btn-default">Search</button>
                 </form>
                 <!--<ul class="nav navbar-nav navbar-right">-->
-                <!--<li class="dropdown">-->
-                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories<span class="caret"></span></a>-->
-                <!--<ul class="dropdown-menu" role="menu">-->
-                <!--<li th:each="category : ${categories}"><a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}"></a></li>-->
-                <!--</ul>-->
-                <!--</li>-->
+                    <!--<li class="dropdown">-->
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories<span class="caret"></span></a>-->
+                        <!--<ul class="dropdown-menu" role="menu">-->
+                            <!--<li th:each="category : ${categories}"><a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}"></a></li>-->
+                        <!--</ul>-->
+                    <!--</li>-->
                 <!--</ul>-->
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" sec:authorize="hasRole('ADMIN')">
@@ -78,6 +78,7 @@
             </div>
         </div>
     </div>
+
     <ul id="messages" th:with="notifyMessages=${session[T(softuniBlog.service
           .NotificationServImplementation).NOTIFY_MSG_SESSION_KEY]}">
         <li th:each="msg : ${notifyMessages}"
@@ -87,4 +88,5 @@
         <span th:if="${notifyMessages}" th:remove="all" th:text="${session.remove(
           T(softuniBlog.service.NotificationServImplementation).NOTIFY_MSG_SESSION_KEY)}"></span>
     </ul>
+
 </header>

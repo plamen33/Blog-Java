@@ -3,7 +3,7 @@ package softuniBlog.bindingModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserEditBindingModel extends UserBindingModel{
+public class UserEditBindingModel extends UserBindingModel {
     private List<Integer> roles;
 
     public UserEditBindingModel() {

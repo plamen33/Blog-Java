@@ -21,6 +21,7 @@ public class Comment {
     public void setId(Integer id) {
         this.id = id;
     }
+
     @Column(nullable = false)
     public String getDate() {
         return date;
@@ -29,7 +30,8 @@ public class Comment {
     public void setDate(String date) {
         this.date = date;
     }
-    @Column(nullable = false)
+
+    @Column(columnDefinition = "text", nullable = false)
     public String getText() {
         return text;
     }
@@ -37,6 +39,7 @@ public class Comment {
     public void setText(String text) {
         this.text = text;
     }
+
     @ManyToOne
     @JoinColumn(name="articleId")
     public Article getArticle() {
@@ -68,7 +71,6 @@ public class Comment {
         this.user=user;
 
     }
-
     @Transient // it means that this method shouldn't be saved in our database
     public String getSummary(){
         if(this.getText().length()>17){

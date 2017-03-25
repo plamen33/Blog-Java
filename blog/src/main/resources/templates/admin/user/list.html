@@ -17,15 +17,16 @@
 
                     <th:block th:each="user : ${users}">
                         <tr th:class="${user.isAdmin() ? 'info' : null}">
-                            <td th:text="${userStat.count}"></td>
-                            <td> <img class="img-circle" th:src="@{/images/users/{picture}(picture=${user.picture})}" height="43" width="43"/></td>
-                            <td th:text="${user.fullName}"></td>
-                            <td th:text="${user.email}"></td>
-                            <td>
-                                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Edit</a>
-                                <a th:href="@{/admin/users/delete/{id}(id=${user.id})}">Delete</a>
-                            </td>
-                        </tr>
+                        <td th:text="${userStat.count}"></td>
+                        <td> <img class="img-circle" th:src="@{/images/users/{picture}(picture=${user.picture})}" height="43" width="43"/></td>
+                        <td th:text="${user.fullName}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td>
+                            <a th:href="@{/profile/{id}(id=${user.id})}">Profile</a>
+                            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Edit</a>
+                            <a th:href="@{/admin/users/delete/{id}(id=${user.id})}">Delete</a>
+                        </td>
+                    </tr>
                     </th:block>
 
                     </tbody>

@@ -1,28 +1,21 @@
 package softuniBlog.controller;
 
-import org.codehaus.groovy.runtime.powerassert.SourceText;
-import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 import org.thymeleaf.util.StringUtils;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.entity.*;
-import softuniBlog.entity.User;
 import softuniBlog.repository.*;
 import softuniBlog.service.NotificationService;
 
@@ -50,6 +43,7 @@ public class ArticleController {
     private CommentRepository commentRepository;
     @Autowired
     private NotificationService notifyService;
+
 
     private HashSet<Tag> findTagsFromString(String tagString){
         HashSet<Tag> tags = new HashSet<>();
@@ -79,10 +73,10 @@ public class ArticleController {
         return "base-layout";
     }
 
-    //    @PostMapping("/article/create")
+//    @PostMapping("/article/create")
     @RequestMapping(value = "/article/create", method = RequestMethod.POST)
     @PreAuthorize("isAuthenticated()")
-    public String createProcess(@Valid ArticleBindingModel articleBindingModel, BindingResult bindingResult,  RedirectAttributes redirectAttributes, UserBindingModel userBindingModel){
+    public String createProcess(@Valid ArticleBindingModel articleBindingModel, BindingResult bindingResult, RedirectAttributes redirectAttributes, UserBindingModel userBindingModel){
         if (bindingResult.hasErrors()) {
             if(articleBindingModel.getTitle().length()>30){
                 redirectAttributes.addFlashAttribute("error", "Article title should not exceed 30 symbols");
@@ -150,12 +144,9 @@ public class ArticleController {
             }
         } else {
 
-            System.out.println("Too Big");
         }
 
-//        https://youtu.be/lisiwUZJXqQ?t=2000
-//        https://www.youtube.com/watch?v=lisiwUZJXqQ?t=2000
-        // add video
+        // add video section
         String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
         Pattern pattern = Pattern.compile(regex);
         String videoLink = articleBindingModel.getVideo();
@@ -174,7 +165,7 @@ public class ArticleController {
                     //if (videoLink1.length() > 100) { articleEntity.setVideoLink(null); }
                 }
                 else {
-                    // articleEntity.setVideo(video + "?start=" + extOptions);
+                   // articleEntity.setVideo(video + "?start=" + extOptions);
                     articleEntity.setVideo(video);
                     articleEntity.setVideoLink(extOptions);
                     //String videoLink2 = articleEntity.getVideo();
@@ -262,6 +253,7 @@ public class ArticleController {
         article.setContent(articleBindingModel.getContent());
         article.setTitle(articleBindingModel.getTitle());
 
+        //// changing the image
         String root = System.getProperty("user.dir");
         file = articleBindingModel.getPicture();
 
@@ -273,7 +265,6 @@ public class ArticleController {
                     //delete old pic:
                     String oldPic = article.getPicture();
                     if (oldPic != null) {
-                        if(!article.getPicture().equals("javauser.jpg")) {
                             File oldPicFile = new File(root + "\\src\\main\\resources\\static\\images\\articles\\", oldPic);
                             try {
                                 if (oldPicFile.delete()) {
@@ -284,7 +275,6 @@ public class ArticleController {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
                     }
                     ///////
 
@@ -300,47 +290,47 @@ public class ArticleController {
                     }
                 } // image type limit
                 else{
-                    System.out.println("You can upload only images !");
+                    notifyService.addWarningMessage("You can upload only images !");
                 }
             } // size limit
             else{
-                System.out.println("file too big");
+
             }
         }
         else {
-            System.out.println("Invalid file");
+            notifyService.addWarningMessage("Invalid file");
         }
 
-        // edit video
-        String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
-        Pattern pattern = Pattern.compile(regex);
-        String videoLink = articleBindingModel.getVideo();
+    // edit video
+    String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
+    Pattern pattern = Pattern.compile(regex);
+    String videoLink = articleBindingModel.getVideo();
 
         if (videoLink!=null){
-            Matcher matcher = pattern.matcher(videoLink);
-            while(matcher.find()){
-                String video = matcher.group(1);
-                String extOptions = matcher.group(2);
-                if (extOptions == null || extOptions.equals("")) {
-                    //if (videoLink.length() > 100) { article.setVideoLink(null); }
-                    //else{
-                    article.setVideo(video);
-                    article.setVideoLink("");
-                    //}
-                }
-                else {
-                    //if (videoLink.length() > 100) { article.setVideoLink(null); }
-                    // else{
-                    //article.setVideo(video + "?start=" + extOptions);
-                    article.setVideo(video);
-                    //article.setVideoLink("?start=" + extOptions);
-                    article.setVideoLink(extOptions);
+           Matcher matcher = pattern.matcher(videoLink);
+           while(matcher.find()){
+           String video = matcher.group(1);
+           String extOptions = matcher.group(2);
+             if (extOptions == null || extOptions.equals("")) {
+               //if (videoLink.length() > 100) { article.setVideoLink(null); }
+               //else{
+                   article.setVideo(video);
+                   article.setVideoLink("");
+               //}
+             }
+              else {
+                  //if (videoLink.length() > 100) { article.setVideoLink(null); }
+                 // else{
+                      //article.setVideo(video + "?start=" + extOptions);
+                      article.setVideo(video);
+                      //article.setVideoLink("?start=" + extOptions);
+                 article.setVideoLink(extOptions);
 
-                    //article.setVideoLink("https://www.youtube.com/embed/"+ video + "?start=" + extOptions);
-                    //https://www.youtube.com/embed/s39mNwFuQDQ?start=212
-                    //}
-                }
-            }
+                 //article.setVideoLink("https://www.youtube.com/embed/"+ video + "?start=" + extOptions);
+                 //https://www.youtube.com/embed/s39mNwFuQDQ?start=212
+                  //}
+              }
+           }
             if(!matcher.matches()){
                 if (videoLink.equals("clear video")) {
                     article.setVideo(null);
@@ -415,9 +405,10 @@ public class ArticleController {
                 if (oldPicFile.delete()) {
                     System.out.println(oldPicFile.getName() + " is deleted!");
                 } else {
-                    System.out.println("Delete operation failed.");
+                    notifyService.addErrorMessage("Delete operation failed !");
                 }
             } catch (Exception e) {
+                notifyService.addErrorMessage("Massive esception occurred due to file deletion issues !");
                 e.printStackTrace();
             }
         }
@@ -547,4 +538,3 @@ public class ArticleController {
     }
 
 }
-
