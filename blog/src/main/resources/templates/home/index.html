@@ -1,14 +1,75 @@
 <main>
+
     <div class="container body-content">
         <div class="row">
-            <div class="col-md-6" th:each="category : ${categories}">
+            <div class="col-md-4" th:each="category : ${categories}">
                 <header>
                     <h2>
                         <a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">
                         </a>
                     </h2>
+
                 </header>
+
             </div>
         </div>
     </div>
+<br/>
+    <aside>
+        <h2>Recent Articles</h2>
+        <a href="#" th:each="p : ${latest5Articles}" th:text="${p.title}"
+           th:href="@{/article/{id}/(id=${p.id})}">HTML5.1</a>
+    </aside>
+
+
 </main>
+
+<!--<main>-->
+
+    <!--<div class="container body-content">-->
+        <!--<div class="row">-->
+            <!--<div class="col-md-4" th:each="category : ${categories}">-->
+                <!--<header>-->
+                    <!--<h2>-->
+                        <!--<a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">-->
+                        <!--</a>-->
+                    <!--</h2>-->
+
+                <!--</header>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <!--<aside>-->
+        <!--<h2>Recent Posts</h2>-->
+        <!--<a href="#" th:each="p : ${latest3Articles}" th:text="${p.title}"-->
+           <!--th:href="@{/article/{id}/(id=${p.id})}">Work Begins on HTML5.1</a>-->
+    <!--</aside>-->
+
+
+<!--</main>-->
+
+
+
+<!--<main>-->
+    <!--<aside>-->
+        <!--<h2>Recent Posts</h2>-->
+        <!--<a href="#" th:each="p : ${latest3Articles}" th:text="${p.title}"-->
+           <!--th:href="@{/article/{id}/(id=${p.id})}">Work Begins on HTML5.1</a>-->
+    <!--</aside>-->
+    <!--<div class="col-md-7" align="center">-->
+        <!--<div class="col-md-14">-->
+            <!--<div class="col-md-5" th:each="category : ${categories}">-->
+                <!--<header>-->
+                    <!--<h2>-->
+                        <!--<a th:href="@{/category/{id}(id=${category.id})}" th:text="${category.name + ' (' + #sets.size(category.articles) + ')'}">-->
+                        <!--</a>-->
+                    <!--</h2>-->
+
+                <!--</header>-->
+
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</main>-->

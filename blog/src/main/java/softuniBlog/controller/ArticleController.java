@@ -524,7 +524,6 @@ public class ArticleController {
         System.out.println(init);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal().equals("anonymousUser")){
-            System.out.println("NULL");
             model.addAttribute("init", init);
             model.addAttribute("articles", foundArticles);
             model.addAttribute("view", "home/search");
