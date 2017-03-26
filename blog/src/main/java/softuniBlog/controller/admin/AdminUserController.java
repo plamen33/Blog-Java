@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -125,6 +126,19 @@ public class AdminUserController {
             return "redirect:/admin/users/";
         }
         User user = this.userRepository.findOne(id);
+
+        /// checking if admin tries to delete himself:
+
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        User userEntity = this.userRepository.findByEmail(principal.getUsername());
+        if(userEntity.getId().equals(user.getId())) {
+            notifyService.addErrorMessage("User cannot delete himself");
+            notifyService.addInfoMessage("Hacking the Java Blog Project is forbidden and will be persecuted !");
+            return "redirect:/admin/users/";
+        }
+
 
         for(Article article : user.getArticles()){
 

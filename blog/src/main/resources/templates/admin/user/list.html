@@ -22,9 +22,17 @@
                         <td th:text="${user.fullName}"></td>
                         <td th:text="${user.email}"></td>
                         <td>
-                            <a th:href="@{/profile/{id}(id=${user.id})}">Profile</a>
-                            <a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Edit</a>
-                            <a th:href="@{/admin/users/delete/{id}(id=${user.id})}">Delete</a>
+                            <div class="dropdown">
+                                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                    Actions
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li class="alert-success"><a th:href="@{/profile/{id}(id=${user.id})}">Profile</a></li>
+                                    <li class="alert-warning"> <a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Edit</a></li>
+                                    <li class="alert-danger"><a th:href="@{/admin/users/delete/{id}(id=${user.id})}">Delete</a></li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     </th:block>
@@ -35,3 +43,8 @@
         </div>
     </div>
 </main>
+
+
+<!--<a th:href="@{/profile/{id}(id=${user.id})}">Profile</a>-->
+<!--<a th:href="@{/admin/users/edit/{id}(id=${user.id})}">Edit</a>-->
+<!--<a th:href="@{/admin/users/delete/{id}(id=${user.id})}">Delete</a>-->
