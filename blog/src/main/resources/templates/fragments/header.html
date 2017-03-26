@@ -50,6 +50,11 @@
                         </a>
                     </li>
                     <li sec:authorize="isAuthenticated()">
+                        <a th:href="@{/painter}">
+                            Painter
+                        </a>
+                    </li>
+                    <li sec:authorize="isAuthenticated()">
                         <a th:href="@{/profile}">
                             My Profile
                         </a>

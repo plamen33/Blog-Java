@@ -26,7 +26,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/users")
@@ -79,6 +78,17 @@ public class AdminUserController {
         }
 
         User user = this.userRepository.findOne(id);
+
+        // checking if edit user email already exists
+        String newUserName= userBindingModel.getEmail();
+        List<User> existingUsers = this.userRepository.findAll();
+        existingUsers.remove(user);
+        for (User u:existingUsers) {
+            if(u.getEmail().equals(newUserName)){
+                notifyService.addErrorMessage("User already exists in Database - choose appropriate email");
+                return "redirect:/admin/users/edit/{id}";
+            }
+        }
 
         if(!StringUtils.isEmpty(userBindingModel.getPassword())
                 && !StringUtils.isEmpty(userBindingModel.getConfirmPassword())){

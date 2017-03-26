@@ -75,6 +75,12 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("error", "Category should not be empty");
             return "redirect:/admin/categories/create";
         }
+        //// checking if the create category name already exists
+        boolean categoryAlreadyExists = this.categoryRepository.findByName(categoryBindingModel.getName())!=null;
+        if(categoryAlreadyExists){
+            notifyService.addErrorMessage("Category already exists in Database - choose appropriate name");
+            return "redirect:/admin/categories/create";
+        }
 
         Category category = new Category(categoryBindingModel.getName());
 
@@ -131,10 +137,22 @@ public class CategoryController {
 
     @PostMapping("/edit/{id}")
     public String editProcess(@PathVariable Integer id, CategoryBindingModel categoryBindingModel, MultipartFile file){
+
         if(!this.categoryRepository.exists(id)){
             return "redirect:/admin/categories/";
         }
+
         Category category=this.categoryRepository.findOne(id);
+        //// checking if the edit name already exists
+        String newCategoryName= categoryBindingModel.getName();
+        List<Category> existingCategories = this.categoryRepository.findAll();
+        existingCategories.remove(category);
+        for (Category c:existingCategories) {
+            if(c.getName().equals(newCategoryName)){
+                notifyService.addErrorMessage("Category already exists in Database - choose appropriate name");
+                return "redirect:/admin/categories/edit/{id}";
+            }
+        }
 
         /// changing category Image
         String root = System.getProperty("user.dir");
