@@ -41,6 +41,7 @@ public class HomeController {
         List<Article> latest5Articles = this.articleRepository.findAll().parallelStream().sorted((a1, a2)->a2.getId().compareTo(a1.getId())).limit(5).collect(Collectors.toList());
         if (auth.getPrincipal().equals("anonymousUser")){
             List<Category> categories = this.categoryRepository.findAll();
+            model.addAttribute("latest5Articles", latest5Articles);
             model.addAttribute("view", "home/index");
             model.addAttribute("categories", categories);
             return "base-layout";

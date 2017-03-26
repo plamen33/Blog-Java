@@ -110,6 +110,7 @@ public class ArticleController {
         Category category = this.categoryRepository.findOne(articleBindingModel.getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
         User userEntity = this.userRepository.findByEmail(user.getUsername());
+        Integer visits = 0;
         Article articleEntity = new Article(
                 articleBindingModel.getTitle(),
                 articleBindingModel.getContent(),
@@ -121,7 +122,8 @@ public class ArticleController {
                 articleLikes,
                 likedUsers,
                 articleDislikes,
-                dislikedUsers
+                dislikedUsers,
+                visits
         );
         /// add image:
         String root = System.getProperty("user.dir");
@@ -190,6 +192,12 @@ public class ArticleController {
             model.addAttribute("user", entityUser);
         }
         Article article = this.articleRepository.findOne(id);
+        System.out.println(article.getVisits());
+        Integer visits = article.getVisits()+1;
+        article.setVisits(visits);
+        System.out.println(article.getVisits());
+        this.articleRepository.saveAndFlush(article);
+
         List<Comment> comments = this.commentRepository.findByArticle(article);
         comments.stream()
                 .sorted((object1, object2) -> object1.getId().compareTo(object2.getId()));
@@ -538,3 +546,37 @@ public class ArticleController {
     }
 
 }
+
+//    //        https://youtu.be/lisiwUZJXqQ?t=2000
+////        https://www.youtube.com/watch?v=lisiwUZJXqQ?t=2000
+//    // edit video
+//    String regex = "^(?:https?\\:\\/\\/)?(?:www\\.)?(?:youtu\\.be\\/|youtube\\.com\\/(?:embed\\/|v\\/|watch\\?v\\=))([\\w-]{10,12})(?:[\\&\\?\\#].*?)*?(?:[\\&\\?\\#]t=([\\d]+))?$";
+//    Pattern pattern = Pattern.compile(regex);
+//    String videoLink = articleBindingModel.getVideo();
+//
+//if (videoLink!=null){
+//        Matcher matcher = pattern.matcher(videoLink);
+//        while(matcher.find()){
+//        String video = matcher.group(1);
+//        String extOptions = matcher.group(2);
+//        if (extOptions == null || extOptions.equals("")) {
+//        if (videoLink.length() > 100) { article.setVideoLink(null); }
+//        else{ article.setVideo(video);}
+//        }
+//        else {
+//        if (videoLink.length() > 100) { article.setVideoLink(null); }
+//        else{
+//        article.setVideo(video + "?start=" + extOptions);
+//        }
+//        }
+//        }
+//        if(!matcher.matches()){
+//        if (videoLink.equals("clear video")) { article.setVideo(null); article.setVideoLink(null); }
+//        else {
+//        if (article.getVideo()==null ||article.getVideo().equals("") ) { article.setVideoLink(null); }
+//        else { article.setVideoLink("https://www.youtube.com/watch?v=" + article.getVideo()); }
+//        }
+//
+//        }
+//        }
+

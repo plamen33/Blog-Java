@@ -21,6 +21,7 @@ public class Article {
     private Integer articleDislikes;
     private String likedUsers;
     private String dislikedUsers;
+    private Integer visits;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -141,9 +142,11 @@ public class Article {
         this.dislikedUsers = dislikedUsers;
     }
 
+    @Column(name = "visits", nullable = false)
+    public Integer getVisits(){ return visits;}
+    public void setVisits(Integer visits){this.visits = visits;}
 
-
-    public Article(String title, String content, User author, Category category, String picture, String video, HashSet<Tag> tags, Integer articleLikes, String likedUsers, Integer articleDislikes, String dislikedUsers){
+    public Article(String title, String content, User author, Category category, String picture, String video, HashSet<Tag> tags, Integer articleLikes, String likedUsers, Integer articleDislikes, String dislikedUsers, Integer visits){
 
         this.title=title;
         this.content=content;
@@ -155,6 +158,7 @@ public class Article {
         this.likedUsers = likedUsers;
         this.articleDislikes = articleDislikes;
         this.dislikedUsers = dislikedUsers;
+        this.visits = visits;
     }
     public Article(){   }
 
