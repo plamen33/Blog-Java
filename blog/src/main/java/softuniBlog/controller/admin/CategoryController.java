@@ -248,8 +248,9 @@ public class CategoryController {
                 try {
                     if (oldPicFile.delete()) {
                         System.out.println(oldPicFile.getName() + " is deleted!");
+
                     } else {
-                        notifyService.addErrorMessage("Delete operation failed !");
+                       // notifyService.addErrorMessage("Delete operation failed !");
                     }
                 } catch (Exception e) {
                     notifyService.addErrorMessage("Massive esception occurred due to file deletion issues !");
